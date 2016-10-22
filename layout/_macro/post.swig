@@ -9,7 +9,7 @@
     {% set post_class = post_class + ' ' + 'post-sticky' %}
   {% endif %}
 
-  <article class="{{ post_class }}" itemscope itemtype="http://schema.org/Article">
+  <article class="{{ post_class }}" itemscope itemtype="//schema.org/Article">
 
     {% if not headlessPost %}
       <header class="post-header">
@@ -88,6 +88,13 @@
                   <span class="post-comments-count ds-thread-count" data-thread-key="{{ post.path }}" itemprop="commentsCount"></span>
                 </a>
               </span>
+            {% elseif theme.facebook_comments_plugin.enable %}
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="{{ url_for(post.path) }}#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count fb-comments-count" data-href="{{ post.permalink }}" itemprop="commentsCount">0</span> comments
+                </a>
+              </span>
             {% elseif theme.disqus_shortname %}
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
@@ -102,6 +109,26 @@
             &nbsp; | &nbsp;
             <div class="fb-like" data-layout="button_count" data-share="true"></div>
           {% endif %}
+
+          {# LeanCould PageView #}
+          {% if theme.leancloud_visitors.enable %}
+             <span id="{{ url_for(post.path) }}" class="leancloud_visitors" data-flag-title="{{ post.title }}">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">{{__('post.visitors')}} </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          {% endif %}
+
+          {% if not is_index and theme.busuanzi_count.enable and theme.busuanzi_count.page_pv %}
+              &nbsp; | &nbsp;
+              <span class="page-pv">{{ theme.busuanzi_count.page_pv_header }}
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>{{ theme.busuanzi_count.page_pv_footer }}
+              </span>
+          {% endif %}
+
         </div>
       </header>
     {% endif %}
@@ -111,13 +138,13 @@
 
       {# Gallery support #}
       {% if post.photos and post.photos.length %}
-        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+        <div class="post-gallery" itemscope itemtype="//schema.org/ImageGallery">
           {% set COLUMN_NUMBER = 3 %}
           {% for photo in post.photos %}
             {% if loop.index0 % COLUMN_NUMBER === 0 %}<div class="post-gallery-row">{% endif %}
               <a class="post-gallery-img fancybox"
                  href="{{ url_for(photo) }}" rel="gallery_{{ post._id }}"
-                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                 itemscope itemtype="//schema.org/ImageObject" itemprop="url">
                 <img src="{{ url_for(photo) }}" itemprop="contentUrl"/>
               </a>
             {% if loop.index0 % COLUMN_NUMBER === 2 %}</div>{% endif %}
@@ -166,7 +193,13 @@
     </div>
 
     <div>
-      {% if ! is_index %}
+      {% if not is_index %}
+        {% include 'wechat-subscriber.swig' %}
+      {% endif %}
+    </div>
+
+    <div>
+      {% if not is_index %}
         {% include 'reward.swig' %}
       {% endif %}
     </div>
